@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Program.cs</title>
+    <title>Start Genesys Recording Download</title>
 </head>
 <body>
-    <a href="Program.cs" download>
-        <button>Download</button>
-    </a>
+    <button onclick="startDownload()">Start Download</button>
+
+    <script>
+        function startDownload() {
+            fetch("https://github.com/dalqamouni/Genesys_Cloud_Downloader") // Change this URL if hosted on a cloud server
+                .then(response => response.text())
+                .then(data => alert(data))
+                .catch(error => console.error("Error:", error));
+        }
+    </script>
 </body>
 </html>
