@@ -9,7 +9,7 @@
             const clientId = "4d437771-ca23-4c3f-a43f-1e8ac0018ffe";
             const clientSecret = "6xLKIc560iZtW27aDMzhlixC-PXkz35mjqoLyNsYWZo";
             const orgRegion = "eu-west-1";
-            const baseUrl = `https://api.${orgRegion}.mypurecloud.com`;
+            const baseUrl = `https://api.mypurecloud.${orgRegion}.`;
             
             try {
                 const response = await fetch(`${baseUrl}/oauth/token`, {
@@ -30,7 +30,7 @@
         }
 
         async function fetchConversations() {
-            const baseUrl = `https://api.eu-west-1.mypurecloud.com`;
+            const baseUrl = `https://api.mypurecloud.${orgRegion}.`;
             const accessToken = localStorage.getItem("accessToken");
             const dates = "2025-03-29T00:00:00.000Z/2025-03-29T23:59:59.000Z";
             
@@ -53,7 +53,7 @@
         }
 
         async function fetchRecordings(conversationId) {
-            const baseUrl = `https://api.eu-west-1.mypurecloud.com`;
+            const baseUrl = `https://api.mypurecloud.${orgRegion}.`;
             const accessToken = localStorage.getItem("accessToken");
             
             try {
