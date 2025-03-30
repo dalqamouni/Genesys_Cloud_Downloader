@@ -9,10 +9,10 @@
             const clientId = "4d437771-ca23-4c3f-a43f-1e8ac0018ffe";
             const clientSecret = "6xLKIc560iZtW27aDMzhlixC-PXkz35mjqoLyNsYWZo";
             const orgRegion = "eu-west-1";
-            const baseUrl = `https://api.mypurecloud.ie.`;
+            const baseUrl = `https://api.mypurecloud.ie`;
             
             try {
-                const response = await fetch(`${baseUrl}/oauth/token`, {
+                const response = await fetch(`https://login.mypurecloud.ie/oauth/token`, {
                     method: "POST",
                     headers: {
                         "Authorization": "Basic " + btoa(`${clientId}:${clientSecret}`),
