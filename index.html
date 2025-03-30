@@ -3,18 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Genesys Recording Download</title>
-</head>
-<body>
-    <button onclick="startDownload()">Start Download</button>
-
+    <title>Bulk Recording Downloader</title>
     <script>
-        function startDownload() {
-            fetch("https://dalqamouni/Genesys_Cloud_Downloader/Program.cs") // Change this URL if hosted on a cloud server
-                .then(response => response.text())
-                .then(data => alert(data))
-                .catch(error => console.error("Error:", error));
+        async function authenticate() {
+            const clientId = "4d437771-ca23-4c3f-a43f-1e8ac0018ffe";
+            const clientSecret = "6xLKIc560iZtW27aDMzhlixC-PXkz35mjqoLyNsYWZo";
+            const orgRegion = "eu-west-1";
+            const baseUrl = `https://api.${orgRegion}.mypurecloud.com`;
+            
+            try {
+                const response = await fetch(`${baseUrl}/oauth/token`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Basic " + btoa(`${clientId}:${clientSecret}`),
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "grant_type=client_credentials"
+                });
+                
+                const data = await response.json();
+                localStorage.setItem("accessToken", data.access_token);
+                console.log("Authenticated Successfully");
+            } catch (error) {
+                console.error("Authentication Failed", error);
+            }
+        }
+
+        async function fetchConversations() {
+            const baseUrl = `https://api.eu-west-1.mypurecloud.com`;
+            const accessToken = localStorage.getItem("accessToken");
+            const dates = "2025-03-29T00:00:00.000Z/2025-03-29T23:59:59.000Z";
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/v2/analytics/conversations/details/query`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${accessToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ interval: dates, paging: { pageSize: 100, pageNumber: 1 } })
+                });
+                
+                const data = await response.json();
+                console.log("Conversations Fetched", data.conversations);
+                return data.conversations;
+            } catch (error) {
+                console.error("Error fetching conversations", error);
+            }
+        }
+
+        async function fetchRecordings(conversationId) {
+            const baseUrl = `https://api.eu-west-1.mypurecloud.com`;
+            const accessToken = localStorage.getItem("accessToken");
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/v2/conversations/${conversationId}/recordings/metadata`, {
+                    headers: { "Authorization": `Bearer ${accessToken}` }
+                });
+                
+                const data = await response.json();
+                console.log(`Recordings for ${conversationId}`, data);
+                return data;
+            } catch (error) {
+                console.error("Error fetching recordings", error);
+            }
+        }
+
+        async function downloadRecording(recording) {
+            try {
+                const link = document.createElement("a");
+                link.href = recording.resultUrl;
+                link.download = `${recording.conversationId}_${recording.recordingId}.mp4`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                console.log("Downloaded", link.download);
+            } catch (error) {
+                console.error("Error downloading recording", error);
+            }
+        }
+
+        async function processRecordings() {
+            await authenticate();
+            const conversations = await fetchConversations();
+            for (const conversation of conversations) {
+                const recordings = await fetchRecordings(conversation.conversationId);
+                for (const recording of recordings) {
+                    await downloadRecording(recording);
+                }
+            }
+            console.log("DONE");
         }
     </script>
+</head>
+<body>
+    <h1>Bulk Recording Downloader</h1>
+    <button onclick="processRecordings()">Start Download</button>
 </body>
 </html>
